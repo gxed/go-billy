@@ -1,0 +1,16 @@
+{
+  "author": "magik6k",
+  "bugs": {
+    "url": "https://github.com/gxed/go-billy"
+  },
+  "gx": {
+    "dvcsimport": "gopkg.in/src-d/go-billy.v3"
+  },
+  "gxVersion": "0.12.1",
+  "language": "go",
+  "license": "",
+  "name": "go-billy.v3",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "1.0.0"
+}
+

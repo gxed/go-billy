@@ -1,5 +1,5 @@
 // Package osfs provides a billy filesystem for the OS.
-package osfs // import "gopkg.in/src-d/go-billy.v3/osfs"
+package osfs
 
 import (
 	"io/ioutil"

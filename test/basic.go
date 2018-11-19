@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 
 	. "gopkg.in/check.v1"
-	. "gopkg.in/src-d/go-billy.v3"
-	"gopkg.in/src-d/go-billy.v3/util"
+	. "gopkg.in/src-d/go-billy.v4"
+	"gopkg.in/src-d/go-billy.v4/util"
 )
 
 // BasicSuite is a convenient test suite to validate any implementation of
@@ -559,6 +559,25 @@ func (s *BasicSuite) TestWriteFile(c *C) {
 	wrote, err := ioutil.ReadAll(f)
 	c.Assert(err, IsNil)
 	c.Assert(string(wrote), DeepEquals, "bar")
+
+	c.Assert(f.Close(), IsNil)
+}
+
+func (s *BasicSuite) TestTruncate(c *C) {
+	f, err := s.FS.Create("foo")
+	c.Assert(err, IsNil)
+
+	for _, sz := range []int64{4, 7, 2, 30, 0, 1} {
+		err = f.Truncate(sz)
+		c.Assert(err, IsNil)
+
+		bs, err := ioutil.ReadAll(f)
+		c.Assert(err, IsNil)
+		c.Assert(len(bs), Equals, int(sz))
+
+		_, err = f.Seek(0, io.SeekStart)
+		c.Assert(err, IsNil)
+	}
 
 	c.Assert(f.Close(), IsNil)
 }

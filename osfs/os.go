@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
-	"gopkg.in/src-d/go-billy.v3"
-	"gopkg.in/src-d/go-billy.v3/helper/chroot"
+	"gopkg.in/src-d/go-billy.v4"
+	"gopkg.in/src-d/go-billy.v4/helper/chroot"
 )
 
 const (
@@ -34,7 +35,11 @@ func (fs *OS) OpenFile(filename string, flag int, perm os.FileMode) (billy.File,
 		}
 	}
 
-	return os.OpenFile(filename, flag, perm)
+	f, err := os.OpenFile(filename, flag, perm)
+	if err != nil {
+		return nil, err
+	}
+	return &file{File: f}, err
 }
 
 func (fs *OS) createDir(fullpath string) error {
@@ -78,6 +83,10 @@ func (fs *OS) Open(filename string) (billy.File, error) {
 	return fs.OpenFile(filename, os.O_RDONLY, 0)
 }
 
+func (fs *OS) Stat(filename string) (os.FileInfo, error) {
+	return os.Stat(filename)
+}
+
 func (fs *OS) Remove(filename string) error {
 	return os.Remove(filename)
 }
@@ -87,7 +96,11 @@ func (fs *OS) TempFile(dir, prefix string) (billy.File, error) {
 		return nil, err
 	}
 
-	return ioutil.TempFile(dir, prefix)
+	f, err := ioutil.TempFile(dir, prefix)
+	if err != nil {
+		return nil, err
+	}
+	return &file{File: f}, nil
 }
 
 func (fs *OS) Join(elem ...string) string {
@@ -112,4 +125,15 @@ func (fs *OS) Symlink(target, link string) error {
 
 func (fs *OS) Readlink(link string) (string, error) {
 	return os.Readlink(link)
+}
+
+// Capabilities implements the Capable interface.
+func (fs *OS) Capabilities() billy.Capability {
+	return billy.DefaultCapabilities
+}
+
+// file is a wrapper for an os.File which adds support for file locking.
+type file struct {
+	*os.File
+	m sync.Mutex
 }

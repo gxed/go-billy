@@ -4,8 +4,8 @@ import (
 	"os"
 
 	. "gopkg.in/check.v1"
-	. "gopkg.in/src-d/go-billy.v3"
-	"gopkg.in/src-d/go-billy.v3/util"
+	. "gopkg.in/src-d/go-billy.v4"
+	"gopkg.in/src-d/go-billy.v4/util"
 )
 
 // FilesystemSuite is a convenient test suite to validate any implementation of
@@ -188,6 +188,9 @@ func (s *FilesystemSuite) TestRemoveAllRelative(c *C) {
 }
 
 func (s *FilesystemSuite) TestReadDir(c *C) {
+	err := s.FS.MkdirAll("qux", 0644)
+	c.Assert(err, IsNil)
+
 	files := []string{"foo", "bar", "qux/baz", "qux/qux"}
 	for _, name := range files {
 		err := util.WriteFile(s.FS, name, nil, 0644)

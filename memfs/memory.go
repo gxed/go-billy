@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/src-d/go-billy.v3"
-	"gopkg.in/src-d/go-billy.v3/helper/chroot"
-	"gopkg.in/src-d/go-billy.v3/util"
+	"gopkg.in/src-d/go-billy.v4"
+	"gopkg.in/src-d/go-billy.v4/helper/chroot"
+	"gopkg.in/src-d/go-billy.v4/util"
 )
 
 const separator = filepath.Separator
@@ -190,6 +190,15 @@ func (fs *Memory) Readlink(link string) (string, error) {
 	return string(f.content.bytes), nil
 }
 
+// Capabilities implements the Capable interface.
+func (fs *Memory) Capabilities() billy.Capability {
+	return billy.WriteCapability |
+		billy.ReadCapability |
+		billy.ReadAndWriteCapability |
+		billy.SeekCapability |
+		billy.TruncateCapability
+}
+
 type file struct {
 	name     string
 	content  *content
@@ -270,6 +279,16 @@ func (f *file) Close() error {
 	return nil
 }
 
+func (f *file) Truncate(size int64) error {
+	if size < int64(len(f.content.bytes)) {
+		f.content.bytes = f.content.bytes[:size]
+	} else if more := int(size) - len(f.content.bytes); more > 0 {
+		f.content.bytes = append(f.content.bytes, make([]byte, more)...)
+	}
+
+	return nil
+}
+
 func (f *file) Duplicate(filename string, mode os.FileMode, flag int) billy.File {
 	new := &file{
 		name:    filename,
@@ -295,6 +314,16 @@ func (f *file) Stat() (os.FileInfo, error) {
 		mode: f.mode,
 		size: f.content.Len(),
 	}, nil
+}
+
+// Lock is a no-op in memfs.
+func (f *file) Lock() error {
+	return nil
+}
+
+// Unlock is a no-op in memfs.
+func (f *file) Unlock() error {
+	return nil
 }
 
 type fileInfo struct {

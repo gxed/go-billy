@@ -4,13 +4,13 @@
     "url": "https://github.com/gxed/go-billy"
   },
   "gx": {
-    "dvcsimport": "gopkg.in/src-d/go-billy.v3"
+    "dvcsimport": "gopkg.in/src-d/go-billy.v4"
   },
   "gxVersion": "0.12.1",
   "language": "go",
   "license": "",
-  "name": "go-billy.v3",
+  "name": "go-billy.v4",
   "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
-  "version": "1.0.1"
+  "version": "2.0.0"
 }
 
